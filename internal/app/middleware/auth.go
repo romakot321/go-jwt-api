@@ -8,12 +8,13 @@ import (
   "github.com/gofiber/fiber/v2"
   "github.com/golang-jwt/jwt"
   "github.com/romakot321/go-jwt-api/internal/app/repositories"
+  "github.com/romakot321/go-jwt-api/internal/app/db"
 )
 
 func authenticateUser(c *fiber.Ctx, scope string) error {
   token := strings.TrimPrefix(c.Get("Authorization"), "Bearer ")
   if token == "" {
-    token = c.Cookies("access-token")
+    token = c.Cookies(scope + "-token")
   }
   tokenByte, err := jwt.Parse(token, func(jwtToken *jwt.Token) (interface{}, error) {
     if _, ok := jwtToken.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -46,7 +47,7 @@ func authenticateUser(c *fiber.Ctx, scope string) error {
     })
   }
 
-  userModel, err := repositories.GetUserByID(int(claims["sub"].(float64)))
+  userModel, err := repositories.GetUserByID(claims["sub"].(string))
   if err != nil {
     log.Print("err")
     return c.Status(401).JSON(fiber.Map{
@@ -60,16 +61,17 @@ func authenticateUser(c *fiber.Ctx, scope string) error {
 }
 
 func AuthenticateUserAccess(c *fiber.Ctx) error {
-  if err := authenticateUser(c, "access"); err != nil {
-    log.Print("err")
-    return err
+  authenticateUser(c, "access")
+  if _, ok := c.Locals("user").(*db.User); ok {
+    return c.Next()
   }
-  return c.Next()
+  return nil
 }
 
 func AuthenticateUserRefresh(c *fiber.Ctx) error {
-  if err := authenticateUser(c, "refresh"); err != nil {
-    return err
+  authenticateUser(c, "refresh")
+  if _, ok := c.Locals("user").(*db.User); ok {
+    return c.Next()
   }
-  return c.Next()
+  return nil
 }

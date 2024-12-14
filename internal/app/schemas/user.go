@@ -1,6 +1,6 @@
 package schemas
 
 type UserGetSchema struct {
-  ID int `json:"id"`
+  GUID string `json:"guid"`
   Username string `json:"username"`
 }

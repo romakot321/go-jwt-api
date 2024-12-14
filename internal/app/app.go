@@ -13,8 +13,10 @@ import (
 func Run() {
   authRepository := repositories.NewAuthRepository("REPLACEME")
   userRepository := repositories.NewUserRepository()
+  tokenRepository := repositories.NewTokenRepository()
+  mailRepository := repositories.NewMailRepository()
 
-  authService := services.NewAuthService(authRepository, userRepository)
+  authService := services.NewAuthService(authRepository, userRepository, tokenRepository, mailRepository)
   userService := services.NewUserService(userRepository)
 
   authController := controllers.NewAuthController(authService)

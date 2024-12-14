@@ -22,6 +22,7 @@ func authenticateUser(c *fiber.Ctx, scope string) error {
     return []byte("REPLACEME"), nil
   })
   if err != nil {
+    log.Print(err, tokenByte)
     return c.Status(401).JSON(fiber.Map{
       "status": "fail",
       "message": "invalid token",
@@ -30,6 +31,7 @@ func authenticateUser(c *fiber.Ctx, scope string) error {
 
   claims, ok := tokenByte.Claims.(jwt.MapClaims)
   if !ok || !tokenByte.Valid {
+    log.Print("err2")
     return c.Status(401).JSON(fiber.Map{
       "status": "fail",
       "message": "invalid token",
@@ -37,14 +39,16 @@ func authenticateUser(c *fiber.Ctx, scope string) error {
   }
   tokenScope, ok := claims["scope"]
   if !ok || !strings.Contains(tokenScope.(string), scope) {
+    log.Print("err")
     return c.Status(401).JSON(fiber.Map{
       "status": "fail",
       "message": "invalid token",
     })
   }
 
-  userModel, err := repositories.GetUserByID(claims["sub"].(int))
+  userModel, err := repositories.GetUserByID(int(claims["sub"].(float64)))
   if err != nil {
+    log.Print("err")
     return c.Status(401).JSON(fiber.Map{
       "status": "fail",
       "message": "invalid token",

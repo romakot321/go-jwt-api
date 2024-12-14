@@ -2,9 +2,9 @@ package controllers
 
 import (
   "github.com/gofiber/fiber/v2"
-  "github.com/romakot321/go-jwt-api/internal/app/schemas"
   "github.com/romakot321/go-jwt-api/internal/app/services"
   "github.com/romakot321/go-jwt-api/internal/app/middleware"
+  "github.com/romakot321/go-jwt-api/internal/app/db"
 )
 
 type UserController interface {
@@ -20,7 +20,7 @@ func (c userController) Register(router fiber.Router) {
 }
 
 func (c userController) getMe(ctx *fiber.Ctx) error {
-  user := ctx.Locals("user").(schemas.UserGetSchema)
+  user := ctx.Locals("user").(*db.User)
   return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
     "status": "success",
     "user": user,

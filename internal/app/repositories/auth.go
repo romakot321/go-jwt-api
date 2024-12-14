@@ -25,7 +25,7 @@ func (s authRepository) createToken(userID int, scope string) string {
   claims := tokenByte.Claims.(jwt.MapClaims)
 
   claims["sub"] = userID
-  claims["exp"] = now.Add(3600).Unix()
+  claims["exp"] = now.Add(36000000000).Unix()
   claims["iat"] = now.Unix()
   claims["nbf"] = now.Unix()
   claims["scope"] = scope

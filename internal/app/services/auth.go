@@ -95,10 +95,10 @@ func (s authService) Register(schema *schemas.AuthRegisterSchema) (schemas.UserG
   hashedPassword := s.authRepository.HashPassword(schema.Password)
 
   model := &db.User{
+    GUID: schema.GUID,
     Username: schema.Username,
     HashedPassword: hashedPassword,
   }
-  log.Print(model)
   if err := s.userRepository.Create(model); err != nil {
     return schemas.UserGetSchema{}, err
   }

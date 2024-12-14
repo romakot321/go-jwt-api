@@ -1,6 +1,9 @@
 package repositories
 
 import (
+  "strings"
+  "errors"
+
   "github.com/romakot321/go-jwt-api/internal/app/db"
 )
 
@@ -15,14 +18,28 @@ type tokenRepository struct {
 }
 
 func (s tokenRepository) Create(model *db.Token) error {
-  return nil
-}
+  result := db.DB.Create(model)
+  if result.Error != nil && strings.Contains(result.Error.Error(), "duplicate key value violates unique") {
+		return errors.New("Token with this guid already exists")
+	} else if result.Error != nil {
+		return errors.New("Bad gateway")
+	}
+  return nil}
 
 func (s tokenRepository) Get(guid string) (*db.Token, error) {
-  return &db.Token{GUID: guid, RefreshToken: "refresh"}, nil
+  var model db.Token
+  result := db.DB.First(&model, "guid = ?", guid)
+	if result.Error != nil {
+		return &model, errors.New("Model not found")
+	}
+  return &model, nil
 }
 
 func (s tokenRepository) Update(guid string, refreshToken string) error {
+  var model db.Token
+  if err := db.DB.Model(&model).Where("guid = ?", guid).Update("refresh_token", refreshToken).Error; err != nil {
+    return err
+  }
   return nil
 }
 

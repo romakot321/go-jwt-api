@@ -8,10 +8,17 @@ import (
   "github.com/romakot321/go-jwt-api/internal/app/controllers"
   "github.com/romakot321/go-jwt-api/internal/app/repositories"
   "github.com/romakot321/go-jwt-api/internal/app/services"
+  "github.com/romakot321/go-jwt-api/internal/app/db"
 )
 
 func Run() {
-  authRepository := repositories.NewAuthRepository("REPLACEME")
+  config, err := LoadConfig(".")
+  if err != nil {
+    log.Fatalln("Failed to load environment variables! \n", err.Error())
+  }
+  db.ConnectDB(config.DBHost, config.DBUserName, config.DBUserPassword, config.DBName, config.DBPort)
+
+  authRepository := repositories.NewAuthRepository(config.JwtSecret)
   userRepository := repositories.NewUserRepository()
   tokenRepository := repositories.NewTokenRepository()
   mailRepository := repositories.NewMailRepository()

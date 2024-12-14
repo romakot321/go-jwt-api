@@ -1,6 +1,7 @@
 package schemas
 
 type AuthRegisterSchema struct {
+  GUID string `json:"guid"`
   Username string `json:"username"`
   Password string `json:"password"`
 }

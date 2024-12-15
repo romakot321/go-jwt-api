@@ -9,6 +9,8 @@ import (
   "github.com/romakot321/go-jwt-api/internal/app/repositories"
 )
 
+// TODO: Add request body validation by `validator`
+
 type AuthService interface {
   Register(schema *schemas.AuthRegisterSchema) (schemas.UserGetSchema, error)
   Login(schema *schemas.AuthLoginSchema, ip string) (schemas.AuthTokenSchema, error)
@@ -78,10 +80,9 @@ func (s authService) Login(schema *schemas.AuthLoginSchema, ip string) (schemas.
   if err != nil {
     return schemas.AuthTokenSchema{}, errors.New("Invalid username or password")
   }
-  // if err := s.authRepository.CompareHashAndPassword(user.HashedPassword, schema.Password); err != nil {
-  //  return schemas.AuthTokenSchema{}, errors.New("Invalid username or password")
-  // }
-  // TODO: Restore after attach database
+  if err := s.authRepository.CompareHashAndPassword(user.HashedPassword, schema.Password); err != nil {
+    return schemas.AuthTokenSchema{}, errors.New("Invalid username or password")
+  }
 
   accessToken := s.authRepository.CreateAccessToken(user.GUID, ip)
   refreshToken := s.authRepository.CreateRefreshToken(user.GUID, ip)

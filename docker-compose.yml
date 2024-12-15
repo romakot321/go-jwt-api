@@ -17,8 +17,6 @@ services:
   postgres:
     image: postgres:16.2
     restart: always
-    ports:
-      - "5432:5432"
     env_file:
       - app.env
     networks:

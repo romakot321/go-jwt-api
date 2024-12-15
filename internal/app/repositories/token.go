@@ -15,7 +15,7 @@ type TokenRepository interface {
 }
 
 type tokenRepository struct {
-
+  // TODO: Add db connection as dependency
 }
 
 func (s tokenRepository) Create(model *db.Token) error {

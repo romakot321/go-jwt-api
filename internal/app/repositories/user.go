@@ -14,7 +14,7 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-
+  // TODO: Add db connection as dependency
 }
 
 func (s userRepository) Create(model *db.User) error {

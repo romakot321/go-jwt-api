@@ -11,6 +11,7 @@ type TokenRepository interface {
   Create(model *db.Token) error
   Get(modelID string) (*db.Token, error)
   Update(guid string, refreshToken string) error
+  UpdateOrCreate(guid string, refreshToken string) error
 }
 
 type tokenRepository struct {
@@ -39,6 +40,18 @@ func (s tokenRepository) Update(guid string, refreshToken string) error {
   var model db.Token
   if err := db.DB.Model(&model).Where("guid = ?", guid).Update("refresh_token", refreshToken).Error; err != nil {
     return err
+  }
+  return nil
+}
+
+func (s tokenRepository) UpdateOrCreate(guid string, refreshToken string) error {
+  model := db.Token{GUID: guid, RefreshToken: refreshToken}
+  result := db.DB.Model(&model).Where("guid = ?", guid).Update("refresh_token", refreshToken)
+  if result.Error != nil {
+    return result.Error
+  }
+  if result.RowsAffected == 0 {
+    db.DB.Create(&model)
   }
   return nil
 }

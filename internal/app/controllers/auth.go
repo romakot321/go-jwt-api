@@ -19,12 +19,12 @@ type authController struct {
 }
 
 func (c authController) Register(router fiber.Router) {
+  router.Post("/v1/login", c.loginV1)
+  router.Post("/v1/refresh", c.refreshV1)
+
   router.Post("/register", c.register)
   router.Post("/login", c.login)
   router.Post("/refresh", middleware.AuthenticateUserRefresh, c.refresh)
-
-  router.Post("/v1/login", c.loginV1)
-  router.Post("/v1/refresh", c.refreshV1)
 }
 
 // Perform a token refresh as mentioned in task

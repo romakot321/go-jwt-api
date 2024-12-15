@@ -5,6 +5,7 @@ import (
   "github.com/romakot321/go-jwt-api/internal/app/services"
   "github.com/romakot321/go-jwt-api/internal/app/middleware"
   "github.com/romakot321/go-jwt-api/internal/app/db"
+  "github.com/romakot321/go-jwt-api/internal/app/schemas"
 )
 
 type UserController interface {
@@ -16,14 +17,17 @@ type userController struct {
 }
 
 func (c userController) Register(router fiber.Router) {
-  router.Post("/me", middleware.AuthenticateUserAccess, c.getMe)
+  router.Get("/me", middleware.AuthenticateUserAccess, c.getMe)
 }
 
 func (c userController) getMe(ctx *fiber.Ctx) error {
   user := ctx.Locals("user").(*db.User)
   return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
     "status": "success",
-    "user": user,
+    "user": schemas.UserGetSchema{
+      GUID: user.GUID,
+      Username: user.Username,
+    },
   })
 }
 

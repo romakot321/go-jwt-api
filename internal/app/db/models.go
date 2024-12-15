@@ -8,5 +8,5 @@ type User struct {
 
 type Token struct {
   GUID string `gorm:"type:varchar(36);primary_key"`
-  RefreshToken string `gorm:"type:varchar(200);not null"`
+  RefreshToken string `gorm:"type:varchar(500);not null"`
 }

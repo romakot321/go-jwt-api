@@ -28,7 +28,9 @@ func (s authService) LoginV1(guid string, ip string) (schemas.AuthTokenSchema, e
   accessToken := s.authRepository.CreateAccessToken(guid, ip)
   refreshToken := s.authRepository.CreateRefreshToken(guid, ip)
 
-  s.tokenRepository.Update(guid, refreshToken)
+  if err := s.tokenRepository.UpdateOrCreate(guid, refreshToken); err != nil {
+    log.Fatal(err)
+  }
 
   return schemas.AuthTokenSchema{
     AccessToken: accessToken,
@@ -39,18 +41,17 @@ func (s authService) LoginV1(guid string, ip string) (schemas.AuthTokenSchema, e
 func (s authService) RefreshV1(refreshToken, accessToken, ip string) (schemas.AuthTokenSchema, error) {
   refreshClaims, err := s.authRepository.GetTokenClaims(refreshToken)
   if err != nil {
-    log.Print(err)
+    log.Print("refresh", refreshToken, err)
     return schemas.AuthTokenSchema{}, errors.New("invalid token")
   }
   accessClaims, err := s.authRepository.GetTokenClaims(accessToken)
   if err != nil {
-    log.Print(err)
+    log.Print("access", err)
     return schemas.AuthTokenSchema{}, errors.New("invalid token")
   }
   guid := refreshClaims["sub"].(string)
 
-  // if token, err := s.tokenRepository.Get(guid); err != nil || token.RefreshToken != refreshToken {
-  if _, err := s.tokenRepository.Get(guid); err != nil {
+  if token, err := s.tokenRepository.Get(guid); err != nil || token.RefreshToken != refreshToken {
     log.Print(err)
     return schemas.AuthTokenSchema{}, errors.New("Invalid tokens")
   }
